@@ -13,6 +13,6 @@ export extra_config=""
 export wan_device_name="modem0"
 export devices_name="wlan0 eth1"
 
-export quota_bytes="1048576"
+export quota_bytes="1073741824"
 
 export bytescounter="/etc/counter"
