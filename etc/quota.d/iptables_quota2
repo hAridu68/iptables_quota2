@@ -2,7 +2,15 @@
 
 . /etc/vars
 
-function append_iptables_drop () {
+function append_iptables_quota_reject () {
+    head="$1 $2 -j reject"
+    iptables -C $head > /dev/null 2>&1
+    if [ $? -eq "1" ]; then     
+        iptables -A $head > /dev/null 2>&1
+    fi
+}
+
+function append_iptables_quota_drop () {
     head="$1 $2 -j DROP"
     iptables -C $head > /dev/null 2>&1
     if [ $? -eq "1" ]; then     
@@ -10,7 +18,7 @@ function append_iptables_drop () {
     fi
 }
 
-function append_iptables_limit () {
+function append_iptables_quota_limit () {
     head="$1 $2 -m limit --limit 11/s --limit-burst 22 -j ACCEPT"
     iptables -C $head > /dev/null 2>&1
     if [ $? -eq "1" ]; then     
@@ -19,56 +27,40 @@ function append_iptables_limit () {
 }
 
 # param chain, mode, idirection, sq
-function append_iptables () 
-{  
-
-    case $3 in
+function append_iptables_quota () 
+{ 
+    case $2 in
         0)  
-            head="$1 $extra_config $4 -m quota2 --name quota -j ACCEPT"
+            head="$1 $extra_config $4 -m quota2 --name quota -j $3"
             iptables -C $head > /dev/null 2>&1
             if [ $? -eq 1 ]; then     
                 iptables -A $head > /dev/null 2>&1
             fi
         ;;
         *)
-            head="$1 $extra_config $4 -m quota2 --quota $quota_bytes --name quota -j ACCEPT"
+            head="$1 $extra_config $4 -m quota2 --quota $quota_bytes --name quota -j $3"
             iptables -C $head > /dev/null 2>&1
             if [ $? -eq 1 ]; then     
                 iptables -A $head > /dev/null 2>&1
             fi
         ;;
     esac
-    case $2 in 
-        "limit")
-            append_iptables_limit "$1" "$extra_config $4"
-            append_iptables_drop "$1" "$extra_config $4"
-        ;;
-        "drop")
-            append_iptables_drop "$1" "$extra_config $4"
-        ;;
-        *)            
-        ;;
-    esac
 }
 
-function append_iptables_ex ()
-{
-    for device in $devices_name; do        
-        append_iptables "$1" "null" "$3" "-i $device -o $wan_device_name"
-        append_iptables "$1" "null" "$3" "-o $device -i $wan_device_name" 
-        case $2 in 
-            "limit")
-                append_iptables_limit "$1" "$extra_config -i $device -o $wan_device_name"
-                append_iptables_limit "$1" "$extra_config -o $device -i $wan_device_name" 
-                append_iptables_drop "$1" "$extra_config -i $device -o $wan_device_name"
-                append_iptables_drop "$1" "$extra_config -o $device -i $wan_device_name" 
+function append_iptables_quota_ex ()
+{    
+    for dire in $4; do
+        local par;
+        case $dire in
+            "in")
+                par = "-i $wan_device_name"
             ;;
-            "drop")
-                append_iptables_drop "$1" "$extra_config -i $device -o $wan_device_name"
-                append_iptables_drop "$1" "$extra_config -o $device -i $wan_device_name" 
+            "out")
+                par = "-o $wan_device_name"
             ;;
-        esac      
-    done
+        esac
+        append_iptables_quota "$1" "$2" "$nq_q_chain" "$par" 
+    done     
 }
 
 if ([ -z $in_q_chain ] || [ -z $out_q_chain ] || [ -z $fwd_q_chain ]); then
@@ -85,14 +77,33 @@ esac
 case $mode in 
     limit)        
     ;;
+    reject)        
+    ;;
     *)
         mode="drop"
     ;;
 esac
 
-append_iptables_ex $in_q_chain $mode 1
-append_iptables_ex $out_q_chain $mode 0
-append_iptables_ex $fwd_q_chain $mode 0
+case $mode in 
+    "limitdrop")
+        append_iptables_quota_limit "$1" "$extra_config"                
+        append_iptables_quota_drop "$1" "$extra_config"                
+    ;;
+    "limitreject")
+        append_iptables_quota_limit "$1" "$extra_config"                
+        append_iptables_quota_reject "$1" "$extra_config"             
+    ;;
+    "drop")
+        append_iptables_quota_drop "$1" "$extra_config"
+    ;;
+    "reject")
+        append_iptables_quota_reject "$1" "$extra_config"
+    ;;
+esac
+
+append_iptables_quota_ex $in_q_chain 1 "in"
+append_iptables_quota_ex $out_q_chain 0 "out"
+append_iptables_quota_ex $fwd_q_chain 0 "in out"
 
 if [ ! -z $bytes_counter ]; then
     cat $bytes_counter > /proc/net/xt_quota/quota

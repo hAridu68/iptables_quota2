@@ -5,8 +5,15 @@
 function create_chain () {
     iptables -L $1 > /dev/null 2>&1
     if [ $? -gt 0 ]; then
-        iptables -N $1 > /dev/null 2>&1
-        iptables -A $2 -j $1  > /dev/null 2>&1
+        case $3 in 
+            0)
+                iptables -N $1 > /dev/null 2>&1
+            ;;
+            *)        
+                iptables -N $1 > /dev/null 2>&1
+                iptables -A $2 -j $1  > /dev/null 2>&1        
+            ;;
+        esac
     fi
 }
 
@@ -24,6 +31,7 @@ esac
 create_chain $in_q_chain $in_chain
 create_chain $out_q_chain $out_chain
 create_chain $fwd_q_chain $fwd_chain
+create_chain $nq_q_chain "null" 0
 
 if [ 1 -eq $setbytecounter ]; then
     export bytes_counter=$bytescounter
