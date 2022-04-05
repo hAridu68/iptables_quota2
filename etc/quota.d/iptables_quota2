@@ -2,64 +2,80 @@
 
 . /etc/vars
 
-function append_iptables_quota_reject () {
-    head="$1 $2 -j reject"
+function append_iptables () {
+    local head="$1"
     iptables -C $head > /dev/null 2>&1
-    if [ $? -eq "1" ]; then     
+    if [ $? -eq 1 ]; then     
         iptables -A $head > /dev/null 2>&1
     fi
+}
+
+function append_iptables_quota_reject () {
+    local head="$1 $2 -j reject"
+    append_iptables "$head"
 }
 
 function append_iptables_quota_drop () {
-    head="$1 $2 -j DROP"
-    iptables -C $head > /dev/null 2>&1
-    if [ $? -eq "1" ]; then     
-        iptables -A $head > /dev/null 2>&1
-    fi
+    local head="$1 $2 -j DROP"
+    append_iptables "$head"
 }
 
 function append_iptables_quota_limit () {
-    head="$1 $2 -m limit --limit 11/s --limit-burst 22 -j ACCEPT"
-    iptables -C $head > /dev/null 2>&1
-    if [ $? -eq "1" ]; then     
-        iptables -A $head > /dev/null 2>&1
-    fi
+    local head="$1 $2 -m limit --limit 27/s --limit-burst 21 -j ACCEPT"
+    append_iptables "$head"
+}
+function append_iptables_quota_time () {
+    local head="$1 $3 -m time $time_active_config -j $2"
+    append_iptables "$head"
 }
 
-# param chain, mode, idirection, sq
+# param chain, sq, extra
 function append_iptables_quota () 
 { 
     case $2 in
         0)  
-            head="$1 $extra_config $4 -m quota2 --name quota -j $3"
-            iptables -C $head > /dev/null 2>&1
-            if [ $? -eq 1 ]; then     
-                iptables -A $head > /dev/null 2>&1
-            fi
+            local head="$1 $extra_config $4 -m quota2 --name quota ! --quota 0 -j $3"
+            append_iptables "$head"
         ;;
         *)
-            head="$1 $extra_config $4 -m quota2 --quota $quota_bytes --name quota -j $3"
-            iptables -C $head > /dev/null 2>&1
-            if [ $? -eq 1 ]; then     
-                iptables -A $head > /dev/null 2>&1
-            fi
+            local head="$1 $extra_config $4 -m quota2 --name quota ! --quota $quota_bytes -j $3"
+            append_iptables "$head"
         ;;
     esac
 }
 
+# param chain, sq, direction
 function append_iptables_quota_ex ()
-{    
-    for dire in $4; do
-        local par;
+{   
+    if [ ! -z $qouta_time_mgr ]; then
+        local mchain="$1"
+        local chain="$1_ext"
+
+        iptables -L "$chian" > /dev/null 2>&1
+        if [ $? -gt 0 ]; then
+            iptables -N $chain > /dev/null 2>&1                   
+        fi
+        append_iptables_quota_time "$mchain" "$chain" " "
+    else
+        local chain="$1" 
+        local mchain="$1_ext"
+        iptables -L "$mchain" > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            iptables -F $mchain > /dev/null 2>&1  
+            iptables -X $mchain > /dev/null 2>&1                   
+        fi    
+    fi
+
+    for dire in $3; do        
         case $dire in
             "in")
-                par = "-i $wan_device_name"
+                local par="-i $wan_device_name"
             ;;
             "out")
-                par = "-o $wan_device_name"
+                local par="-o $wan_device_name"
             ;;
         esac
-        append_iptables_quota "$1" "$2" "$nq_q_chain" "$par" 
+        append_iptables_quota "$chain" "$2" "$nq_q_chain" "$par" 
     done     
 }
 
@@ -69,37 +85,31 @@ fi
 
 case $1 in 
     "resetcounter")    
-        echo 0 > $bytescounter
+        echo $quota_bytes > $bytescounter
         export bytes_counter=$bytescounter
     ;;
 esac
 
 case $mode in 
-    limit)        
+    "limitdrop") # limit speed with drop
+        append_iptables_quota_limit "$nq_q_chain" "$extra_config"                
+        append_iptables_quota_drop "$nq_q_chain" "$extra_config"                
     ;;
-    reject)        
+    "limitreject") # limit speed with reject
+        append_iptables_quota_limit "$nq_q_chain" "$extra_config"                
+        append_iptables_quota_reject "$nq_q_chain" "$extra_config"             
     ;;
-    *)
-        mode="drop"
+    "reject")
+        append_iptables_quota_reject "$nq_q_chain" "$extra_config"
+    ;;
+    *) # default drop
+        append_iptables_quota_drop "$nq_q_chain" "$extra_config"
     ;;
 esac
 
-case $mode in 
-    "limitdrop")
-        append_iptables_quota_limit "$1" "$extra_config"                
-        append_iptables_quota_drop "$1" "$extra_config"                
-    ;;
-    "limitreject")
-        append_iptables_quota_limit "$1" "$extra_config"                
-        append_iptables_quota_reject "$1" "$extra_config"             
-    ;;
-    "drop")
-        append_iptables_quota_drop "$1" "$extra_config"
-    ;;
-    "reject")
-        append_iptables_quota_reject "$1" "$extra_config"
-    ;;
-esac
+for chain in $in_q_chain $out_q_chain $fwd_q_chain; do # clean chain before add rule
+    iptables -F $chain > /dev/null 2>&1    
+done
 
 append_iptables_quota_ex $in_q_chain 1 "in"
 append_iptables_quota_ex $out_q_chain 0 "out"
