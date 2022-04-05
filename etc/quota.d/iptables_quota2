@@ -1,0 +1,99 @@
+#!/bin/sh 
+
+. /etc/vars
+
+function append_iptables_drop () {
+    head="$1 $2 -j DROP"
+    iptables -C $head > /dev/null 2>&1
+    if [ $? -eq "1" ]; then     
+        iptables -A $head > /dev/null 2>&1
+    fi
+}
+
+function append_iptables_limit () {
+    head="$1 $2 -m limit --limit 11/s --limit-burst 22 -j ACCEPT"
+    iptables -C $head > /dev/null 2>&1
+    if [ $? -eq "1" ]; then     
+        iptables -A $head > /dev/null 2>&1
+    fi
+}
+
+# param chain, mode, idirection, sq
+function append_iptables () 
+{  
+
+    case $3 in
+        0)  
+            head="$1 $extra_config $4 -m quota2 --name quota -j ACCEPT"
+            iptables -C $head > /dev/null 2>&1
+            if [ $? -eq 1 ]; then     
+                iptables -A $head > /dev/null 2>&1
+            fi
+        ;;
+        *)
+            head="$1 $extra_config $4 -m quota2 --quota $quota_bytes --name quota -j ACCEPT"
+            iptables -C $head > /dev/null 2>&1
+            if [ $? -eq 1 ]; then     
+                iptables -A $head > /dev/null 2>&1
+            fi
+        ;;
+    esac
+    case $2 in 
+        "limit")
+            append_iptables_limit "$1" "$extra_config $4"
+            append_iptables_drop "$1" "$extra_config $4"
+        ;;
+        "drop")
+            append_iptables_drop "$1" "$extra_config $4"
+        ;;
+        *)            
+        ;;
+    esac
+}
+
+function append_iptables_ex ()
+{
+    for device in $devices_name; do        
+        append_iptables "$1" "null" "$3" "-i $device -o $wan_device_name"
+        append_iptables "$1" "null" "$3" "-o $device -i $wan_device_name" 
+        case $2 in 
+            "limit")
+                append_iptables_limit "$1" "$extra_config -i $device -o $wan_device_name"
+                append_iptables_limit "$1" "$extra_config -o $device -i $wan_device_name" 
+                append_iptables_drop "$1" "$extra_config -i $device -o $wan_device_name"
+                append_iptables_drop "$1" "$extra_config -o $device -i $wan_device_name" 
+            ;;
+            "drop")
+                append_iptables_drop "$1" "$extra_config -i $device -o $wan_device_name"
+                append_iptables_drop "$1" "$extra_config -o $device -i $wan_device_name" 
+            ;;
+        esac      
+    done
+}
+
+if ([ -z $in_q_chain ] || [ -z $out_q_chain ] || [ -z $fwd_q_chain ]); then
+    exit 1
+fi 
+
+case $1 in 
+    "resetcounter")    
+        echo 0 > $bytescounter
+        export bytes_counter=$bytescounter
+    ;;
+esac
+
+case $mode in 
+    limit)        
+    ;;
+    *)
+        mode="drop"
+    ;;
+esac
+
+append_iptables_ex $in_q_chain $mode 1
+append_iptables_ex $out_q_chain $mode 0
+append_iptables_ex $fwd_q_chain $mode 0
+
+if [ ! -z $bytes_counter ]; then
+    cat $bytes_counter > /proc/net/xt_quota/quota
+fi

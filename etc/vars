@@ -1,0 +1,18 @@
+#!/bin/sh
+
+export in_chain="input_rule"
+export out_chain="output_rule"
+export fwd_chain="forwarding_rule"
+
+export in_q_chain="quota_$in_chain"
+export out_q_chain="quota_$out_chain"
+export fwd_q_chain="quota_$fwd_chain"
+
+export extra_config=""
+
+export wan_device_name="modem0"
+export devices_name="wlan0 eth1"
+
+export quota_bytes="1048576"
+
+export bytescounter="/etc/counter"

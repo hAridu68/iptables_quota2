@@ -1,0 +1,32 @@
+#!/bin/sh 
+
+. /etc/vars
+
+function create_chain () {
+    iptables -L $1 > /dev/null 2>&1
+    if [ $? -gt 0 ]; then
+        iptables -N $1 > /dev/null 2>&1
+        iptables -A $2 -j $1  > /dev/null 2>&1
+    fi
+}
+
+setbytecounter=0
+
+case $1 in
+    "setbytescounter")
+        setbytecounter="1"
+    ;;
+    *)
+        
+    ;;
+esac
+
+create_chain $in_q_chain $in_chain
+create_chain $out_q_chain $out_chain
+create_chain $fwd_q_chain $fwd_chain
+
+if [ 1 -eq $setbytecounter ]; then
+    export bytes_counter=$bytescounter
+fi
+
+/etc/quota.d/iptables_quota2

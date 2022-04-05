@@ -1,0 +1,2 @@
+#!/bin/sh
+/etc/quota.d/iptables_init setbytescounter
