@@ -1,4 +1,4 @@
-Script iptables_quota2 untuk impelmentasi iptables quota2
+Script for iptables with module xt_quota2
 
 Doc:
     on file /etc/vars
@@ -25,7 +25,7 @@ Doc:
         iptables:
             /etc/quota.d/restore_bytescounter place to custom rules script on network->firewall->custom rules luci webadmin or /etc/firewall.user or /etc/init.d/firewall or make script for start it 
 
-installing:
+installing for OpenWRT:
     run install.sh install or uninstall 
 
-        
+note: if cannot use install.sh see above
