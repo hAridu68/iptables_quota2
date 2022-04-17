@@ -47,7 +47,7 @@ function append_iptables_quota ()
 # param chain, sq, direction
 function append_iptables_quota_ex ()
 {   
-    if [ ! -z $qouta_time_mgr ]; then
+    if [ ! -z $quota_time_mgr ]; then
         local mchain="$1"
         local chain="$1_ext"
 

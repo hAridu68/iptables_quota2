@@ -19,7 +19,7 @@ export wan_device_name="eth0" # WAN, modem, etc Device has quota based data plan
 
 export quota_bytes="1073741824" # Quota in bytes
 
-#export qouta_time_mgr=1
+#export quota_time_mgr=1
 #export time_active_config="--timestart 18:00:00 --timestop 22:59:00" # Using UTC timezone
 
 export bytescounter="/etc/counter" # Counter or saved remain quota
