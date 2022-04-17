@@ -24,9 +24,7 @@ case $1 in
         setbytecounter="1"
     ;;
     "disable")
-        for chain in $in_q_chain $out_q_chain $fwd_q_chain $nq_q_chain; do
-            iptables -F $chain  
-        done
+        /etc/quota.d/iptables_flush
         exit 0
     ;;
     *)

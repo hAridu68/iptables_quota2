@@ -1,0 +1,5 @@
+#!/bin/sh 
+
+. /etc/vars
+
+cat $1 > $bytescounter
