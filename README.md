@@ -1,7 +1,8 @@
 Script for iptables with module xt_quota2
 
 Doc:
-    on file /etc/vars
+
+    on file /etc/vars:
         1) (in, out, fwd)_chain : name chain has exist in filter table
         2) (in, out, fwd)_q_chain : name chain for quota rules
         3) nq_q_chain and mode : chain if no quota and rules set by 'mode' var. defualt: drop
@@ -11,7 +12,7 @@ Doc:
         7) bytescounter : filepath to save counter 
         8) quota_time_mgr : enable quota active counting
         9) time_active_config : config -m time paramater 
-    scripts /etc/quota.d/*
+    scripts /etc/quota.d/*:
         1) iptables_init : init chain
         2) iptables_quota2 : init rules
         3) iptables_flush : flush rules and del chain
@@ -26,6 +27,7 @@ Doc:
             /etc/quota.d/restore_bytescounter place to custom rules script on network->firewall->custom rules luci webadmin or /etc/firewall.user or /etc/init.d/firewall or make script for start it 
 
 installing for OpenWRT:
+
     run install.sh install or uninstall 
 
 note: if cannot use install.sh see above
