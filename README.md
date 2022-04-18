@@ -1,8 +1,10 @@
 Script for iptables with module xt_quota2
+====
 
-Doc:
+Documentation
 
-    on file /etc/vars:
+on file /etc/vars:
+
         1) (in, out, fwd)_chain : name chain has exist in filter table
         2) (in, out, fwd)_q_chain : name chain for quota rules
         3) nq_q_chain and mode : chain if no quota and rules set by 'mode' var. defualt: drop
@@ -12,7 +14,9 @@ Doc:
         7) bytescounter : filepath to save counter 
         8) quota_time_mgr : enable quota active counting
         9) time_active_config : config -m time paramater 
-    scripts /etc/quota.d/*:
+
+scripts /etc/quota.d/*:
+
         1) iptables_init : init chain
         2) iptables_quota2 : init rules
         3) iptables_flush : flush rules and del chain
@@ -20,7 +24,8 @@ Doc:
         5) restore_bytescounter : restore counter from $bytescounter files pervent loss counting and reinit iptables
         6) save_bytescounter  : save counter to $bytescounter files
         7) update_bytescounter : update or change counter 
-    Using:
+Using:
+
         crontab:
             config crontab schadule for /etc/quota.d/save_bytescounter and /etc/quota.d/reset_bytescounter, put to System->Scheduled Tasks or /etc/crontabs/quota
         iptables:
