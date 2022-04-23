@@ -32,10 +32,13 @@ case $1 in
     ;;
 esac
 
-create_chain $in_q_chain $in_chain
-create_chain $out_q_chain $out_chain
-create_chain $fwd_q_chain $fwd_chain
-create_chain $nq_q_chain "null" 0
+for chain in $in_chain $out_chain $fwd_chain; do 
+    create_chain "quota_$chain" $chain
+done
+
+for filter in "input" "output" "forwarding"; do 
+    create_chain "${filter}_$nq_q_chain" "null" 0
+done
 
 
 if [ 1 -eq $setbytecounter ]; then

@@ -6,14 +6,14 @@ Documentation
 on file /etc/vars:
 
         1) (in, out, fwd)_chain : name chain has exist in filter table
-        2) (in, out, fwd)_q_chain : name chain for quota rules
-        3) nq_q_chain and mode : chain if no quota and rules set by 'mode' var. defualt: drop
-        4) extra_config : extra config for rules
-        5) wan_device_name : device wan or wwan
-        6) quota_bytes : bytes quota
-        7) bytescounter : filepath to save counter 
-        8) quota_time_mgr : enable quota active counting
-        9) time_active_config : config -m time paramater 
+        2) nq_q_chain and mode : chain if no quota and rules set by 'mode' var. defualt: drop
+        3) extra_config : extra config for rules
+        4) wan_device_name : device wan or wwan
+        5) quota_bytes : bytes quota
+        6) bytescounter : filepath to save counter 
+        7) quota_time_mgr : enable quota active counting
+        8) time_active_config : config -m time paramater 
+        9) device_chain : device rule name (ex, wan ) (openwrt only)
 
 scripts /etc/quota.d/*:
 
