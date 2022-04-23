@@ -26,9 +26,9 @@ function install()
         cp ./etc/vars /etc/vars
     fi 
 
-    echo '*/10 * * * * /etc/quota.d/save_bytescounter' > /etc/crontabs/quota
-    echo '1 0 * * * /etc/quota.d/reset_bytescounter' >> /etc/crontabs/quota
-    echo >> /etc/crontabs/quota
+    echo '*/10 * * * * /etc/quota.d/save_bytescounter' >> /etc/crontabs/root
+    echo '1 0 * * * /etc/quota.d/reset_bytescounter' >> /etc/crontabs/root
+    echo >> /etc/crontabs/root
 
     echo '/etc/quota.d/restore_bytescounter' > /etc/firewall.quota
 
@@ -48,7 +48,6 @@ function uninstall()
 {
     rm -r /etc/quota.d
     rm /etc/vars
-    rm /etc/crontabs/quota
     rm /etc/firewall.quota
 
     uci -q delete firewall.quota
