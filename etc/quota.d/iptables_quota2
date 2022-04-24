@@ -14,6 +14,11 @@ function append_iptables_quota_reject () {
     append_iptables "$head"
 }
 
+function append_iptables_quota_conntrack () {
+    local head="$1 $4 -m conntrack $3 -j $2"
+    append_iptables "$head"
+}
+
 function append_iptables_quota_drop () {
     local head="$1 $2 -j DROP"
     append_iptables "$head"
@@ -106,6 +111,7 @@ function append_iptables_quota_ex ()
         *)
             case $1 in 
                 fwd)
+                    local c_nq_d_chain_dnat="$c_nq_d_chain"
                     local c_nq_d_chain="ACCEPT"
                 ;;
             esac
@@ -114,6 +120,11 @@ function append_iptables_quota_ex ()
 
     case $mode in 
         limit*)
+            case $1 in 
+                fwd)
+                    append_iptables_quota_conntrack "$c_nq_q_chain" "$c_nq_d_chain_dnat" "--ctstate DNAT" 
+                ;;
+            esac
             append_iptables_quota_limit "$c_nq_q_chain" "$c_nq_d_chain"             
             case $mode in
                 *drop) # limit speed with drop         
