@@ -20,7 +20,7 @@ function append_iptables_quota_drop () {
 }
 
 function append_iptables_quota_limit () {
-    local head="$1 -m limit --limit 27/s --limit-burst 21 -j $2"
+    local head="$1 -m limit --limit 45/s --limit-burst 50 -j $2"
     append_iptables "$head"
 }
 function append_iptables_quota_time () {
@@ -100,9 +100,18 @@ function append_iptables_quota_ex ()
     done 
     
     iptables -L $c_nq_d_chain > /dev/null 2>&1
-    if [ $? -gt 1 ]; then
-        local c_nq_d_chain="ACCEPT"
-    fi
+    case $? in
+        1)     
+            local c_nq_d_chain="ACCEPT"
+        ;;
+        *)
+            case $1 in 
+                fwd)
+                    local c_nq_d_chain="ACCEPT"
+                ;;
+            esac
+        ;;
+    esac
 
     case $mode in 
         "limitdrop") # limit speed with drop
