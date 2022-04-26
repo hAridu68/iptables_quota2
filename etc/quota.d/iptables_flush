@@ -2,7 +2,13 @@
 
 . /etc/vars
 
-/etc/quota.d/save_bytescounter
+case $1 in 
+    nobackup)
+    ;;
+    *)
+        /etc/quota.d/save_bytescounter
+    ;;
+esac
 
 for chain in $in_chain $out_chain $fwd_chain; do 
     iptables -D $chain -j "quota_$chain" > /dev/null 2>&1
