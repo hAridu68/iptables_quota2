@@ -2,4 +2,4 @@
 
 . /etc/vars
 
-cat $1 > $bytescounter
+echo $1 > $bytescounter

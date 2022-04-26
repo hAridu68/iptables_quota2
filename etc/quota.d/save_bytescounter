@@ -3,3 +3,4 @@
 . /etc/vars
 
 cat /proc/net/xt_quota/quota > $bytescounter
+[ ! -z $quota_time_mgr ] && cat /proc/net/xt_quota/counter > ${bytescounter}_c
