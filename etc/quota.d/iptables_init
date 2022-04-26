@@ -5,13 +5,13 @@
 function create_chain () {
     iptables -L $1 $ext > /dev/null 2>&1
     if [ $? -gt 0 ]; then
-        case $3 in 
+        case $4 in 
             0)
-                iptables -N $1 > /dev/null 2>&1
+                iptables -N $1 $ext $3 > /dev/null 2>&1
             ;;
             *)        
-                iptables -N $1 $ext > /dev/null 2>&1
-                iptables -A $2 $ext -j $1 > /dev/null 2>&1        
+                iptables -N $1 $ext $3 > /dev/null 2>&1
+                iptables -A $2 $ext -j $1 $3 > /dev/null 2>&1        
             ;;
         esac
     fi
@@ -37,9 +37,10 @@ for chain in $in_chain $out_chain $fwd_chain; do
 done
 
 for filter in "input" "output" "forwarding"; do 
-    create_chain "${filter}_$nq_q_chain" "null" 0
+    create_chain "${filter}_$nq_q_chain" "null" " " 0
 done
 
+create_chain "quota_counter" "null" "-t raw" 0
 
 if [ 1 -eq $setbytecounter ]; then
     export bytes_counter=$bytescounter
