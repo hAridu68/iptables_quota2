@@ -18,3 +18,5 @@ export quota_bytes="1073741824" # Quota in bytes
 #export time_active_config="--timestop 18:00:00 --timestart 22:59:00" # Using UTC timezone
 
 export bytescounter="/etc/counter" # Counter or saved remain quota
+
+export ext="-w 1"

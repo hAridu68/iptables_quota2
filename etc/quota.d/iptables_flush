@@ -11,16 +11,16 @@ case $1 in
 esac
 
 for chain in $in_chain $out_chain $fwd_chain; do 
-    iptables -D $chain -j "quota_$chain" > /dev/null 2>&1
-    iptables -F "quota_$chain" > /dev/null 2>&1
-    iptables -X "quota_$chain" > /dev/null 2>&1
+    iptables -D $chain $ext -j "quota_$chain" > /dev/null 2>&1
+    iptables -F "quota_$chain" $ext > /dev/null 2>&1
+    iptables -X "quota_$chain" $ext > /dev/null 2>&1
     if [ $quota_time_mgr -eq 1 ]; then
-        iptables -F "quota_${chain}_ext" > /dev/null 2>&1
-        iptables -X "quota_${chain}_ext" > /dev/null 2>&1
+        iptables -F "quota_${chain}_ext" $ext > /dev/null 2>&1
+        iptables -X "quota_${chain}_ext" $ext > /dev/null 2>&1
     fi
 done
 
 for filter in "input" "output" "forwarding"; do 
-    iptables -F "${filter}_$nq_q_chain" > /dev/null 2>&1
-    iptables -X "${filter}_$nq_q_chain" > /dev/null 2>&1
+    iptables -F "${filter}_$nq_q_chain" $ext > /dev/null 2>&1
+    iptables -X "${filter}_$nq_q_chain" $ext > /dev/null 2>&1
 done
