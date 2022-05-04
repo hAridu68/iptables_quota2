@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#chain must exist as system default
+#chain must exist as system default; NOTE: if used nftables system, you have to change {in,out,fwd}_chain vars
 export in_chain="input_rule"
 export out_chain="output_rule"
 export fwd_chain="forwarding_rule"
