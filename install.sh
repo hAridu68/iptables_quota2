@@ -5,7 +5,13 @@ function modules_chk()
     if [ -z "`opkg info iptables-mod-quota2 | grep installed`" ]; then
         echo "installing iptables-mod-quota2"
         opkg update > /dev/null 2>&1
-        opkg install iptables-mod-quota2 > /dev/null 2>&1
+
+        nft --version > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+             local extra_module="xtables-nft iptables-nft ip6tables-nft kmod-ipt-quota2"
+        fi
+
+        opkg install $extra_module iptables-mod-quota2 > /dev/null 2>&1      
     fi
     if [ -z "`lsmod | grep xt_quota2`" ]; then
         modprobe xt_quota2
