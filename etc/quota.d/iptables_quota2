@@ -161,6 +161,7 @@ function quota_counter () {
     local qc_chain="quota_counter"
 
     append_iptables "PREROUTING -j $qc_chain -i $wan_device_name -t raw"
+    append_iptables "OUTPUT -j $qc_chain -o $wan_device_name -t raw"
 
     iptables -L "$qc_chain" -t raw $ext > /dev/null 2>&1
     if [ $? -gt 0 ]; then
