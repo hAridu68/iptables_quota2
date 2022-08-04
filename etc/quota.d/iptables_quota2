@@ -2,10 +2,17 @@
 
 . /etc/vars
 
+if [ `/etc/quota.d/nft-check` -eq 1 ]; then
+    ipt=iptables-nft
+else
+    ipt=iptables
+fi
+
+
 function append_iptables () {
-    iptables -C $1 $ext > /dev/null 2>&1
+    $ipt -C $1 $ext > /dev/null 2>&1
     if [ $? -eq 1 ]; then     
-        iptables -A $1 $ext > /dev/null 2>&1
+        $ipt -A $1 $ext > /dev/null 2>&1
     fi
 }
 
@@ -87,18 +94,18 @@ function append_iptables_quota_ex ()
         local mchain="$q_chain"
         local chain="${q_chain}_ext"
 
-        iptables -L "$chian" $ext > /dev/null 2>&1
+        $ipt -L "$chian" $ext > /dev/null 2>&1
         if [ $? -gt 0 ]; then
-            iptables -N $chain $ext > /dev/null 2>&1                   
+            $ipt -N $chain $ext > /dev/null 2>&1                   
         fi
         append_iptables_quota_time "$mchain" "$chain" " "
     else
         local chain="$q_chain" 
         local mchain="${q_chain}_ext"
-        iptables -L "$mchain" $ext > /dev/null 2>&1
+        $ipt -L "$mchain" $ext > /dev/null 2>&1
         if [ $? -eq 0 ]; then
-            iptables -F $mchain $ext > /dev/null 2>&1  
-            iptables -X $mchain $ext > /dev/null 2>&1                   
+            $ipt -F $mchain $ext > /dev/null 2>&1  
+            $ipt -X $mchain $ext > /dev/null 2>&1                   
         fi    
     fi
 
@@ -114,7 +121,7 @@ function append_iptables_quota_ex ()
         append_iptables_quota "$chain" "$2" "$c_nq_q_chain" "$par" 
     done 
     
-    iptables -L $c_nq_d_chain > /dev/null 2>&1
+    $ipt -L $c_nq_d_chain > /dev/null 2>&1
     case $? in
         1)     
             local c_nq_d_chain="ACCEPT"
@@ -163,28 +170,28 @@ function quota_counter () {
     append_iptables "PREROUTING -j $qc_chain -i $wan_device_name -t raw"
     append_iptables "OUTPUT -j $qc_chain -o $wan_device_name -t raw"
 
-    iptables -L "$qc_chain" -t raw $ext > /dev/null 2>&1
+    $ipt -L "$qc_chain" -t raw $ext > /dev/null 2>&1
     if [ $? -gt 0 ]; then
-        iptables -F $qc_chain -t raw $ext > /dev/null 2>&1
+        $ipt -F $qc_chain -t raw $ext > /dev/null 2>&1
     fi
 
     if [ ! -z $quota_time_mgr ]; then
         local mchain="$qc_chain"
         local chain="${qc_chain}_ext"
 
-        iptables -L "$chian" -t raw $ext > /dev/null 2>&1
+        $ipt -L "$chian" -t raw $ext > /dev/null 2>&1
         if [ $? -gt 0 ]; then
-            iptables -N $chain -t raw $ext > /dev/null 2>&1                   
+            $ipt -N $chain -t raw $ext > /dev/null 2>&1                   
         fi
         append_iptables_counter "$mchain" "?" "-t raw"
         append_iptables_quota_time "$mchain" "$chain" "-t raw"
     else
         local chain="$qc_chain" 
         local mchain="${qc_chain}_ext"
-        iptables -L "$mchain" -t raw $ext > /dev/null 2>&1
+        $ipt -L "$mchain" -t raw $ext > /dev/null 2>&1
         if [ $? -eq 0 ]; then
-            iptables -F $mchain -t raw $ext > /dev/null 2>&1  
-            iptables -X $mchain -t raw $ext > /dev/null 2>&1                   
+            $ipt -F $mchain -t raw $ext > /dev/null 2>&1  
+            $ipt -X $mchain -t raw $ext > /dev/null 2>&1                   
         fi    
     fi
 
@@ -201,7 +208,7 @@ case $1 in
 esac
 
 for chain in $in_chain $out_chain $fwd_chain; do # clean chain before add rule
-    iptables -F "quota_${chain}" > /dev/null 2>&1    
+    $ipt -F "quota_${chain}" > /dev/null 2>&1    
 done
 
 quota_counter
