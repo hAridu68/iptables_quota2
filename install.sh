@@ -10,7 +10,6 @@ function modules_chk()
         nft --version > /dev/null 2>&1
         if [ $? -eq 0 ]; then
              local extra_module="xtables-nft iptables-nft ip6tables-nft kmod-ipt-quota2"
-             export nft=1;
         fi
 
         opkg install $extra_module iptables-mod-quota2 > /dev/null 2>&1      
@@ -38,15 +37,13 @@ function install()
     echo '1 0 * * * /etc/quota.d/reset_bytescounter' >> /etc/crontabs/root
     echo >> /etc/crontabs/root
 
-    if [ -z $nft ]; then
-        echo '/etc/quota.d/restore_bytescounter' > /etc/firewall.quota
+    echo '/etc/quota.d/restore_bytescounter' > /etc/firewall.quota
 
-        uci -q delete firewall.quota
-        uci set firewall.quota="include"
-        uci set firewall.quota.path="/etc/firewall.quota"
-        uci set firewall.quota.reload="1"
-        uci commit firewall
-    fi
+    uci -q delete firewall.quota
+    uci set firewall.quota="include"
+    uci set firewall.quota.path="/etc/firewall.quota"
+    uci set firewall.quota.reload="1"
+    uci commit firewall
 
     /etc/init.d/firewall restart > /dev/null 2>&1
     /etc/init.d/cron restart > /dev/null 2>&1
@@ -60,12 +57,12 @@ function uninstall()
     rm /etc/vars
 
     nft --version > /dev/null 2>&1
-    if [ $? -eq 1 ]; then 
-        rm /etc/firewall.quota
 
-        uci -q delete firewall.quota
-        uci commit firewall
-    fi
+    rm /etc/firewall.quota
+
+    uci -q delete firewall.quota
+    uci commit firewall
+
 
     /etc/init.d/firewall restart > /dev/null 2>&1
     /etc/init.d/cron restart > /dev/null 2>&1
