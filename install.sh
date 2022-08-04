@@ -2,7 +2,7 @@
 
 function modules_chk()
 {
-    if [ -z "`opkg info iptables-mod-quota2 | grep installed`" ]; then
+    if [ -n "`opkg info iptables-mod-quota2 | grep 'not-installed'`" ]; then
         echo "installing iptables-mod-quota2"
         opkg update > /dev/null 2>&1
 
