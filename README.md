@@ -20,10 +20,11 @@ scripts /etc/quota.d/*:
         1) iptables_init : init chain
         2) iptables_quota2 : init rules
         3) iptables_flush : flush rules and del chain
-        4) reset_bytescounter : reset counter to quota_bytes var
-        5) restore_bytescounter : restore counter from $bytescounter files pervent loss counting and reinit iptables
-        6) save_bytescounter  : save counter to $bytescounter files
-        7) update_bytescounter : update or change counter 
+        4) nft-check : Chack nftables is used
+        5) reset_bytescounter : reset counter to quota_bytes var
+        6) restore_bytescounter : restore counter from $bytescounter files pervent loss counting and reinit iptables
+        7) save_bytescounter  : save counter to $bytescounter files
+        8) update_bytescounter : update or change counter 
 Using:
 
         crontab:
