@@ -1,0 +1,34 @@
+#!/bin/sh
+. /etc/vars
+
+d_target=$wan_device_name
+q_target=quota
+
+# Remove hashtag for loging
+
+[ ifdown = "$ACTION" ] && {
+    #logread -t hotplug "iface: Device down! Save quota of $d_target device"
+    [ -e /proc/net/xt_quota/$q_target ] && {
+        #logread -t hotplug "iface: Quota Save to /tmp/$q_target"
+        cat /proc/net/xt_quota/$q_target > /tmp/$q_target
+    }
+}
+
+if [ $d_target = "$DEVICE" ]; then
+    #logread -t hotplug "iface: $DEVICE is found"
+    [ ifup = "$ACTION" ] && {
+       #logread -t hotplug "iface: $DEVICE is up - restore quota"
+       [ -e /tmp/$q_target ] && {
+            #logread -t hotplug "iface: /tmp/$q_target exist! restoring"
+            let "cn0 = `cat $bytescounter`"            
+            let "ret = `cat /tmp/$q_target` < cn0"
+            
+            if [ "1" -eq "$ret" ]; then
+                #logread -t hotplug "iface: update $bytescounter"
+                cat /tmp/$q_target > $bytescounter
+            fi  
+            
+            cat /tmp/$q_target > /proc/net/xt_quota/$q_target      
+       }
+    }    
+fi
