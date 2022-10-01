@@ -1,0 +1,14 @@
+#!/bin/sh
+. /etc/vars
+
+d_target=$wan_device_name
+q_target=quota
+
+if [ $d_target = "$DEVICE"]; then 
+    [ ifup = "$ACTION"] && {
+        cat /tmp/$q_target > /proc/net/xt_quota/$q_target
+    }    
+    [ ifdown = "$ACTION"] && {
+        cat /proc/net/xt_quota/%q_target > /tmp/$q_target
+    }
+fi
