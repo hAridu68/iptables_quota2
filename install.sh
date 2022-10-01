@@ -33,6 +33,10 @@ function install()
         cp ./etc/vars /etc/vars
     fi 
 
+    if [ ! -e /etc/hotplug.d ]; then
+        cp ./etc/hotplug.d/iface/10-quota2 /etc/hotplug.d/iface/10-quota2
+    fi
+    
     echo '*/10 * * * * /etc/quota.d/save_bytescounter' >> /etc/crontabs/root
     echo '1 0 * * * /etc/quota.d/reset_bytescounter' >> /etc/crontabs/root
     echo >> /etc/crontabs/root
@@ -48,6 +52,8 @@ function install()
     /etc/init.d/firewall restart > /dev/null 2>&1
     /etc/init.d/cron restart > /dev/null 2>&1
 
+    /etc/quota.d/reset_bytescounter
+    
     echo 'done.'
 }
 
@@ -59,10 +65,10 @@ function uninstall()
     nft --version > /dev/null 2>&1
 
     rm /etc/firewall.quota
+    rm /etc/hotplug.d/iface/10-quota2
 
     uci -q delete firewall.quota
     uci commit firewall
-
 
     /etc/init.d/firewall restart > /dev/null 2>&1
     /etc/init.d/cron restart > /dev/null 2>&1

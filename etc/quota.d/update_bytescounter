@@ -3,3 +3,5 @@
 . /etc/vars
 
 echo $1 > $bytescounter
+
+/etc/quota.d/restore_bytescounter

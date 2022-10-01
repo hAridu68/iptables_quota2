@@ -195,15 +195,17 @@ function quota_counter () {
         fi    
     fi
 
-    append_iptables_quota "$chain" 1 "ACCEPT" "-t raw"
+    #append_iptables_quota "$chain" 1 "ACCEPT" "-t raw"
+    append_iptables_quota "$chain" 0 "ACCEPT" "-t raw"
 }
-
+function reinit_quota() {
+    echo $quota_bytes > $bytescounter
+    echo 0 > ${bytescounter}_c
+    export bytes_counter=$bytescounter
+}
 case $1 in 
     "resetcounter")    
-        echo $quota_bytes > $bytescounter
-        echo 0 > ${bytescounter}_c
-        export bytes_counter=$bytescounter
-
+        reinit_quota
     ;;
 esac
 
