@@ -44,9 +44,7 @@ function install()
     
     /etc/init.d/firewall restart > /dev/null 2>&1
     /etc/init.d/cron restart > /dev/null 2>&1
-
-    /etc/quota.d/reset_bytescounter
-    
+      
     echo 'done.'
 }
 
@@ -59,11 +57,7 @@ function uninstall()
 
     uci -q delete firewall.quota
     uci commit firewall
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> d3e314c (improve: recover counter if iface(up/down) & counter leave 0 for first run.)
     /etc/init.d/firewall restart > /dev/null 2>&1
     /etc/init.d/cron restart > /dev/null 2>&1
 
