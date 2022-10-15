@@ -1,0 +1,26 @@
+#!/bin/sh
+
+bytes() {
+    local Sz=$1
+
+    case $2 in
+        G*)
+            local pow=1073741824
+        ;;
+        M*)
+            local pow=1048576
+        ;;
+        K*)
+            local pow=1024
+        ;;
+        *)
+            local pow=1
+        ;;
+    esac
+
+    let "Sz=Sz*pow"
+
+    echo -n $Sz   
+}
+
+bytes $1 $2
