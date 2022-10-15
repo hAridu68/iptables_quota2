@@ -2,23 +2,6 @@
 
 . /etc/vars
 
-Sz=$1
-
-case "$2" in
-    G*)
-        let "Sz=Sz*1024*1024*1024"
-    ;;
-    M*)
-        let "Sz=Sz*1024*1024"
-    ;;
-    K*)
-        let "Sz=Sz*1024"
-    ;;
-    *)
-        
-    ;;
-esac
-
-echo $Sz > $bytescounter
+echo `/etc/quota.d/proc/getbytes $1 $2` > $bytescounter
 
 /etc/quota.d/restore_bytescounter
