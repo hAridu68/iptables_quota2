@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# convert time to UTC
+
+# Using :
+#   utc_time {time} {+/-timezone}
+# expl:
+#   utc_time 20:30 +0700
+# Result:
+#   Time Of UTC 
+
+hor=`echo $1 | awk -F: '{print $1}'`
+mmt=`echo $1 | awk -F: '{print $2}'`
+
+time_=${hor}${mmt}
+
+zone_a=`echo $2 | cut -c "2-" -`
+znot=`echo $2 | cut -c "-1" -`
+zone_=znot`date -u -D %Y%m%d%H%M -d "19700101${zone_a}" +%s`
+
+tick_=`date -D %H%M -d "${time_}" +%s`
+
+let "tick_=tick_-zone_"
+
+date -u -d "@$tick_" +%H:%M
+
