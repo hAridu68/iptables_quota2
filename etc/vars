@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# proc 
+utctime=/etc/quota.d/proc/utc_time
+gbytes=/etc/quota.d/proc/getbytes
+
 #chain must exist as system default; NOTE: if used nftables system, you have to change {in,out,fwd}_chain vars
 export in_chain="input_rule"
 export out_chain="output_rule"
@@ -12,10 +16,15 @@ export nq_q_chain="noquota_rule" # after qouta 0 rule run
 
 export wan_device_name="eth0" # WAN, modem, etc Device has quota based data plan 
 
-export quota_bytes="1073741824" # Quota in bytes
+#export quota_bytes="1073741824" # Quota in bytes
+
+export quota_bytes="`$gbytes 1 GB`"
 
 #export quota_time_mgr=1
 #export time_active_config="--timestop 18:00:00 --timestart 22:59:00" # Using UTC timezone
+
+#export quota_time_mgr=1
+#export time_active_config="--timestop `$utctime 06:00 +0700` --timestart `$utctime 23:59 +0700`"
 
 export bytescounter="/etc/counter" # Counter or saved remain quota
 
