@@ -15,8 +15,9 @@ on file /etc/vars:
         8) time_active_config : config -m time paramater 
         9) device_chain : device rule name (ex, wan ) (openwrt only)
 
-scripts /etc/quota.d/*:
+scripts /etc/quota.d/*, /etc/quota.d/proc:
 
+    main:
         1) iptables_init : init chain
         2) iptables_quota2 : init rules
         3) iptables_flush : flush rules and del chain
@@ -25,6 +26,10 @@ scripts /etc/quota.d/*:
         6) restore_bytescounter : restore counter from $bytescounter files pervent loss counting and reinit iptables
         7) save_bytescounter  : save counter to $bytescounter files
         8) update_bytescounter : update or change counter 
+    proc:
+        1) getbytes : Calculate bytes to {KB, MB, GB}
+        2) utc_time : Convert time UTC{-N,+N} to UTC
+
 Using:
 
         crontab:
