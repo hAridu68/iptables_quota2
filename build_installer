@@ -1,0 +1,12 @@
+#/bin/sh
+
+echo "build installer"
+
+tar zcf package.tar.gz install.sh etc > /dev/null 2>&1
+
+if [ -e package.tar.gz ]; then
+    cat installer/selfext package.tar.gz > q2iptables.run
+    rm package.tar.gz
+else
+    echo "package.tar.gz!"
+fi

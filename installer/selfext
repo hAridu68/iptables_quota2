@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "Self Extructing!"
+
+tmp=`mktemp -d /tmp/qp2.XXXXXX`
+
+BINARY=`awk '/^__BINARY__/ {print NR+1; exit 0;}' $0`
+
+tail -n+$BINARY $0 | tar xzv -C $tmp
+
+$tmp/install.sh install
+
+__BINARY__
